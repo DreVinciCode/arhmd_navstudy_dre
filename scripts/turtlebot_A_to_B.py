@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+
+'''
+    Dec. 3, 2018
+'''
 '''
 Copyright (c) 2015, Mark Silliman
 All rights reserved.
@@ -111,7 +115,7 @@ if __name__ == '__main__':
 	'''
 	    A = [29.78, 13.87]
         B = [14.95, 13.86]
-	
+
         location_coord[0] = A
         location_coord[1] = B
 
@@ -136,7 +140,7 @@ if __name__ == '__main__':
 
                     while module not in mode:
                         module = raw_input("Mode must be either 1, 2, 3...")
- 
+
                     bagfile = name + '_' + module
                     command_sub.publish(bagfile)
 
@@ -144,8 +148,8 @@ if __name__ == '__main__':
 
                     while proceed not in key:
                         proceed = raw_input("You must press 'y'...")
-                        
-                    else: 
+
+                    else:
                         print("Proceeding to B...")
                         point_pub.publish('A')
                         counter += 1
@@ -153,14 +157,14 @@ if __name__ == '__main__':
 
                 if locations_names[goal_index] == 'B':
                     point_pub.publish('B')
-                    
+
 
             else:
                 rospy.loginfo("The base failed to reach point " + locations_names[goal_index])
-        
+
 
             goal_index += 1
-          
+
 
             if goal_index >= num_location:
                 goal_index = 0

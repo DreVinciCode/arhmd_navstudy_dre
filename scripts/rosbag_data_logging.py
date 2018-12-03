@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 '''
+
     data logging for the arhmd_navstudy_dre
     certain topics are subscribed too but can add additional if needed.
-
+    Dec. 3, 2018
 '''
 from __future__ import print_function
 import rosbag
