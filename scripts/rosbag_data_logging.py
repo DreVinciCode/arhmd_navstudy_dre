@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+
+'''
+    data logging for the arhmd_navstudy_dre
+    certain topics are subscribed too but can add additional if needed.
+
+'''
 from __future__ import print_function
 import rosbag
 import rospy
@@ -19,7 +25,7 @@ class arStudyData:
         self.counter_global = 0
         self.counter_local = 0
         self.counter_navfnROS = 0
-     
+
         self.pose_sub = rospy.Subscriber("/amcl_pose",PoseWithCovarianceStamped, self.callback_pose)
         self.currentpoint_sub = rospy.Subscriber("/point_ab", String, self.callback_point)
         self.odom_sub = rospy.Subscriber("/odom", Odometry, self.odom_callback)
@@ -42,7 +48,7 @@ class arStudyData:
         self.printout()
 
         #print("Full Path replan: " + str(self.counter_navfnROS))
-      
+
         if self.recording == True:
             self.bag.write("/move_base/NavfnROS/plan", data)
             pass
@@ -133,8 +139,7 @@ class arStudyData:
     def printout(self):
         print("Global RP: " + str(self.counter_global) + "\tLocal RP: " + str(self.counter_local) + "\tFull Path :" + str(self.counter_navfnROS) + "\n")
 
-    
+
 
 if __name__ == '__main__':
     nav = arStudyData()
-
