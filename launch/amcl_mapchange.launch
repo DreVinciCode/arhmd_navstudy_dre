@@ -1,20 +1,9 @@
 <launch>
 
-  	<!-- launch minimal -->
-	<include file="$(find turtlebot_bringup)/launch/minimal.launch">
-		<!-- any potential arguments go here; need to check if 3D goes on by default or not -->	
-	</include>
-
-
-	<!-- launch 3D sensor -->
-	<include file="$(find tbot2_launch)/launch/3dsensor.launch">
-		<arg name="scan_topic" default="scan"/>
-	</include>
-
   <arg name="3d_sensor" default="$(env TURTLEBOT_3D_SENSOR)"/>
 
   <!-- Map server -->
-  <arg name="map_file" default="$(find AR_Study_Dre)/tufts_map/maps/real/2/2.yaml"/>
+  <arg name="map_file" default="$(find arhmd_navstudy_dre)/tufts_map/2/my_map_Andre_Hp.yaml"/>
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 
   <!-- AMCL -->
@@ -34,12 +23,4 @@
     <arg name="custom_param_file" value="$(arg custom_param_file)"/>
   </include>
  
- <node pkg="AR_Study_Dre" name="turtlebot_settings" type="settings.py" output="screen">
- 			<param name="frame_id" value="base_link" />
- </node>
-  
-  <!-- rviz for visualization -->
-  <include file="$(find turtlebot_rviz_launchers)/launch/view_navigation.launch">
-  </include>
-
 </launch>
