@@ -1,0 +1,19 @@
+<launch>
+
+<!-- rosrun gotoAnB.py -->
+
+<!-- rosrun rosbag_data_logging.py -->
+<node pkg="arhmd_navstudy_dre" name="rosbag_data_logging" type="rosbag_data_logging.py" output="screen">
+			<param name="frame_id" value="base_link" />
+</node>
+
+<node pkg="arhmd_navstudy_dre" name="turtlebot_A_to_B" type="turtlebot_A_to_B.py" output="screen">
+			<param name="frame_id" value="base_link" />
+</node>
+
+<!-- rosrun settings.py -->
+<node pkg="arhmd_navstudy_dre" name="turtlebot_settings" type="settings.py" output="screen">
+			<param name="frame_id" value="base_link" />
+</node>
+
+</launch>
