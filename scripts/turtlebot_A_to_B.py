@@ -109,12 +109,20 @@ if __name__ == '__main__':
 	# for map_file:=2.yaml    intial pose:  is x: 29.78, y: 13.87, om: -3.
 
 	'''
-        A = [0.33, -0.13]
+	    A = [0.0, 0.0] # my_map_Andre.yaml   
+        B = [-1.19, -8.0]
+
+	'''
+
+        A = [0.33, -0.13] # my_map_Andre_Hp.yaml   
         B = [-6.85, 0.50]
 
 	'''
-	    A = [29.78, 13.87]
+	    A = [29.78, 13.87] # 2.yaml
         B = [14.95, 13.86]
+    '''
+
+
 
         location_coord[0] = A
         location_coord[1] = B
