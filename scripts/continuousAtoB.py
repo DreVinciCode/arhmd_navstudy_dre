@@ -33,13 +33,18 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from std_msgs.msg import String, Int32
 import numpy as np
 import rosbag
+from std_srvs.srv import Empty 
+
+def clear_costmap():
+    	rospy.wait_for_service("/move_base/clear_costmaps")
+    	clear_costmap_proxy = rospy.ServiceProxy("/move_base/clear_costmaps", Empty)
+    	clear_costmap_proxy()
 
 class GoToPose():
     def __init__(self):
 
         self.goal_sent = False
-
-
+    	
 	# What to do if shut down (e.g. Ctrl-C or failure)
 	rospy.on_shutdown(self.shutdown)
 
@@ -106,15 +111,17 @@ if __name__ == '__main__':
         B = [-6.85, 0.50]
 
 	'''
-	A = [-1.4, 0.16]
-        B = [-0.6, -3.0]
+	A = [-0.163, -1.04]
+        B = [-0.163,  7.45]
 
         location_coord[0] = A
         location_coord[1] = B
 
+
         while not rospy.is_shutdown():
 
             # Customize the following values so they are appropriate for your location
+            clear_costmap()
             position = {'x': location_coord[goal_index][0], 'y' : location_coord[goal_index][1]}
             quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
 
