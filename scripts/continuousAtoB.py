@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 
 '''
-    Dec. 3, 2018
-'''
-
-
-'''
 Copyright (c) 2015, Mark Silliman
 All rights reserved.
 
@@ -33,18 +28,17 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from std_msgs.msg import String, Int32
 import numpy as np
 import rosbag
-from std_srvs.srv import Empty 
-
-def clear_costmap():
-    	rospy.wait_for_service("/move_base/clear_costmaps")
-    	clear_costmap_proxy = rospy.ServiceProxy("/move_base/clear_costmaps", Empty)
-    	clear_costmap_proxy()
 
 class GoToPose():
     def __init__(self):
 
+        self.posA = [0, 0]
+        self.posB = [0, 0]
+        self.counter = 0
         self.goal_sent = False
-    	
+        rospy.Subscriber("/point_coordinate", Point, self.coordinate_callback)
+
+
 	# What to do if shut down (e.g. Ctrl-C or failure)
 	rospy.on_shutdown(self.shutdown)
 
@@ -89,12 +83,40 @@ class GoToPose():
         rospy.loginfo("Stop")
         rospy.sleep(1)
 
+    def coordinate_callback(self, data):
+
+        if self.counter == 0:
+            self.posA = [data.x, data.y]
+            print("Point A: " + str(self.posA))
+            self.counter = 0
+
+        elif self.counter == 1:
+            self.posB = [data.x, data.y]
+            print("Point B: " + str(self.posB))
+            self.counter = 0
+        else:
+            pass
+        self.counter += 1
+
 if __name__ == '__main__':
+
+    zero  = [0, 0]
+
     try:
         rospy.init_node('nav_test', anonymous=False)
         point_pub = rospy.Publisher("/point_ab", String, queue_size=10)
-
+        command_sub = rospy.Publisher("/data_logging_commands", String, queue_size = 1)
         navigator = GoToPose()
+
+        print("Run select_A_to_B.py script and select points.")
+
+        print(navigator.posA, navigator.posB)
+        '''
+            This is to make sure that both points have been obtained.
+        '''
+
+        A = navigator.posA
+        B = navigator.posB
 
         start_index = 0
         goal_index = start_index
@@ -103,25 +125,12 @@ if __name__ == '__main__':
 
         location_coord = np.zeros([num_location,2])
 
-	# for map_file:=my_map_Andre_Hp.yaml  intiial pose is x: 0, y:0, om: -3.26
-	# for map_file:=2.yaml    intial pose:  is x: 29.78, y: 13.87, om: -3.
-
-	'''
-        A = [0.33, -0.13]
-        B = [-6.85, 0.50]
-
-	'''
-	A = [-0.163, -1.04]
-        B = [-0.163,  7.45]
-
         location_coord[0] = A
         location_coord[1] = B
-
 
         while not rospy.is_shutdown():
 
             # Customize the following values so they are appropriate for your location
-            clear_costmap()
             position = {'x': location_coord[goal_index][0], 'y' : location_coord[goal_index][1]}
             quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
 
@@ -146,3 +155,5 @@ if __name__ == '__main__':
 
     except rospy.ROSInterruptException:
         rospy.loginfo("Ctrl-C caught. Quitting")
+else:
+    print("Failed")

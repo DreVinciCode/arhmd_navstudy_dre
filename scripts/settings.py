@@ -1,11 +1,4 @@
 #!/usr/bin/env python
-
-'''
-    settings for the speed of the turtlebotself.
-    Dec. 3, 2018
-
-'''
-
 from __future__ import print_function
 import rospy
 from dynamic_reconfigure.msg import Config
