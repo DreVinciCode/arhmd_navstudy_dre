@@ -111,9 +111,9 @@ if __name__ == '__main__':
         print("Run select_A_to_B.py script and select points.")
 
         while navigator.posA == zero or navigator.posB == zero:
-        '''
-            This is to make sure that both points have been obtained.
-        '''
+		'''
+		    This is to make sure that both points have been obtained.
+		'''
 
         A = navigator.posA
         B = navigator.posB
