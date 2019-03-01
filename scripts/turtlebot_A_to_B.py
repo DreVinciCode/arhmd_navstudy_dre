@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-
-'''
-    Dec. 3, 2018
-'''
 '''
 Copyright (c) 2015, Mark Silliman
 All rights reserved.
@@ -32,13 +28,18 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from std_msgs.msg import String, Int32
 import numpy as np
 import rosbag
+import sys
 
 mode = ['1', '2', '3']
 
 class GoToPose():
     def __init__(self):
 
+        self.posA = [0, 0]
+        self.posB = [0, 0]
+        self.counter = 0
         self.goal_sent = False
+        rospy.Subscriber("/point_coordinate", Point, self.coordinate_callback)
 
 
 	# What to do if shut down (e.g. Ctrl-C or failure)
@@ -85,44 +86,50 @@ class GoToPose():
         rospy.loginfo("Stop")
         rospy.sleep(1)
 
+    def coordinate_callback(self, data):
+
+        print("coordinate_callback")
+        if self.counter == 0:
+            self.posA = [data.x, data.y]
+            print("Point A: " + str(self.posA))
+            self.counter = 1
+
+        elif self.counter == 1:
+            self.posB = [data.x, data.y]
+            print("Point B: " + str(self.posB))
+            self.counter = 0
+        else:
+            pass
+
+
 if __name__ == '__main__':
 
     key = ['y']
-    counter = 0
+    zero  = [0, 0]
 
     try:
         rospy.init_node('nav_test', anonymous=False)
         point_pub = rospy.Publisher("/point_ab", String, queue_size=10)
         command_sub = rospy.Publisher("/data_logging_commands", String, queue_size = 1)
 
-
         navigator = GoToPose()
 
+        print("Run select_A_to_B.py script and select points.")
+        while navigator.posA == zero or navigator.posB == zero:
+            '''
+                This is to make sure that both points have been obtained.
+            '''
+
+        A = navigator.posA
+        B = navigator.posB
+
         start_index = 0
+        counter = 0
         goal_index = start_index
         locations_names = ['A', "B"]
         num_location = 2
 
         location_coord = np.zeros([num_location,2])
-
-	# for map_file:=my_map_Andre_Hp.yaml  intiial pose is x: 0, y:0, om: -3.26
-	# for map_file:=2.yaml    intial pose:  is x: 29.78, y: 13.87, om: -3.
-
-	'''
-	    A = [0.0, 0.0] # my_map_Andre.yaml   
-        B = [-1.19, -8.0]
-
-	'''
-
-        A = [0.33, -0.13] # my_map_Andre_Hp.yaml   
-        B = [-6.85, 0.50]
-
-	'''
-	    A = [29.78, 13.87] # 2.yaml
-        B = [14.95, 13.86]
-    '''
-
-
 
         location_coord[0] = A
         location_coord[1] = B
@@ -141,7 +148,7 @@ if __name__ == '__main__':
 
                 if locations_names[goal_index] == 'A':
 
-                    name = raw_input("Enter rosbag file name...")
+                    name = raw_input("Enter rosbag file name...\n")
                     name = name.replace(" ","")
 
                     module = raw_input("Enter Mode...")
@@ -165,7 +172,6 @@ if __name__ == '__main__':
 
                 if locations_names[goal_index] == 'B':
                     point_pub.publish('B')
-
 
             else:
                 rospy.loginfo("The base failed to reach point " + locations_names[goal_index])
