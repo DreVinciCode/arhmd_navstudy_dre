@@ -102,7 +102,7 @@ if __name__ == '__main__':
 
         start_index = 0
         goal_index = start_index
-        locations_names = ['A', 'B', 'C', 'D']
+        locations_names = ['A', 'B', 'C', 'D', 'E', 'F','G']
         num_location = 7
 
         location_coord = np.zeros([num_location,3])
