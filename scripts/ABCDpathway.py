@@ -31,6 +31,9 @@ import rosbag
 import std_srvs.srv
 from tf import transformations
 import math
+import sys
+
+mode = ['1', '2', '3']
 
 class GoToPose():
     def __init__(self):
@@ -85,14 +88,16 @@ class GoToPose():
 
 if __name__ == '__main__':
 
+    key = ['y']
+
     # waypoints for the turtlebot, [x,y, theata]
     point_A = [-18.39, 3.97, 225]
     point_B = [-19.78, 1.63, 180]
-    point_C = [-33.56, 1.63, 90]
+    point_C = [-33.56, 1.63, 180]
     point_D = [-33.56, 3.74, 270]
     point_E = [-33.56, 1.63, 0]
     point_F = [-19.78, 1.63, 45]
-    point_G = [-18.39, 3.97, 45]
+    # point_G = [-18.39, 3.97, 45]
 
     try:
         rospy.init_node('nav_test', anonymous=False)
@@ -102,8 +107,8 @@ if __name__ == '__main__':
 
         start_index = 0
         goal_index = start_index
-        locations_names = ['A', 'B', 'C', 'D', 'E', 'F','G']
-        num_location = 7
+        locations_names = ['A', 'B', 'C', 'D', 'E', 'F']
+        num_location = len(locations_names)
 
         location_coord = np.zeros([num_location,3])
 
@@ -113,9 +118,9 @@ if __name__ == '__main__':
         location_coord[3] = point_D
         location_coord[4] = point_E
         location_coord[5] = point_F
-        location_coord[6] = point_G
+        # location_coord[6] = point_G
 
-
+        counter = 0
         while not rospy.is_shutdown():
 
             turtlebot_orientation_in_degrees = location_coord[goal_index][2]
@@ -131,8 +136,33 @@ if __name__ == '__main__':
             if success:
                 rospy.loginfo("Hooray, reached point " + locations_names[goal_index])
                 point_pub.publish(locations_names[goal_index])
-                rospy.ServiceProxy('/move_base/clear_costmaps', std_srvs.srv.Empty())
-                rospy.wait_for_service('/move_base/clear_costmaps')
+
+                # request user to input file name for rosbag
+                if locations_names[goal_index] == 'A':
+                    counter += 1
+                    print("lap " + str(counter))
+
+                    name = raw_input("Enter rosbag file name...\n")
+                    name = name.replace(" ","")
+
+                    module = raw_input("Enter Mode...")
+
+                    while module not in mode:
+                        module = raw_input("Mode must be either 1, 2, 3...")
+
+                    bagfile = name + '_' + module + '.bag'
+                    command_sub.publish(bagfile)
+
+                    proceed = raw_input("To continue with path press 'y'...")
+
+                    while proceed not in key:
+                        proceed = raw_input("You must press 'y'...")
+
+                else:
+                    pass
+                    # point_pub.publish(locations_names[goal_index])
+                    # rospy.ServiceProxy('/move_base/clear_costmaps', std_srvs.srv.Empty())
+                    # rospy.wait_for_service('/move_base/clear_costmaps')
 
             else:
                 rospy.loginfo("The base failed to reach point " + locations_names[goal_index])
