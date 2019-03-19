@@ -91,12 +91,13 @@ if __name__ == '__main__':
     key = ['y']
 
     # waypoints for the turtlebot, [x,y, theata]
+    # need to increase points B,C,E, and F in the y direction. Orignal value is 1.63, changing to 
     point_A = [-18.39, 3.97, 225]
-    point_B = [-19.78, 1.63, 180]
-    point_C = [-33.56, 1.63, 180]
+    point_B = [-20.38, 2.0, 180]
+    point_C = [-33.56, 2.0, 180]
     point_D = [-33.56, 3.74, 270]
-    point_E = [-33.56, 1.63, 0]
-    point_F = [-19.78, 1.63, 45]
+    point_E = [-33.56, 2.0, 0]
+    point_F = [-20.38, 2.0, 45]
     # point_G = [-18.39, 3.97, 45]
 
     try:

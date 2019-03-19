@@ -29,6 +29,7 @@ from std_msgs.msg import String, Int32
 import numpy as np
 import rosbag
 import sys
+import std_srvs.srv
 
 mode = ['1', '2', '3']
 
@@ -145,6 +146,8 @@ if __name__ == '__main__':
 
             if success:
                 rospy.loginfo("Hooray, reached point " + locations_names[goal_index])
+		rospy.ServiceProxy('/move_base/clear_costmaps', std_srvs.srv.Empty())
+                rospy.wait_for_service('/move_base/clear_costmaps')
 
                 if locations_names[goal_index] == 'A':
 
@@ -175,6 +178,8 @@ if __name__ == '__main__':
 
             else:
                 rospy.loginfo("The base failed to reach point " + locations_names[goal_index])
+		rospy.ServiceProxy('/move_base/clear_costmaps', std_srvs.srv.Empty())
+                rospy.wait_for_service('/move_base/clear_costmaps')
 
 
             goal_index += 1
