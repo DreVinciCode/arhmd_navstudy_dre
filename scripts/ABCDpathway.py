@@ -28,7 +28,7 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from std_msgs.msg import String, Int32
 import numpy as np
 import rosbag
-import std_srvs.srv
+from std_srvs.srv import *
 from tf import transformations
 import math
 import sys
@@ -90,8 +90,9 @@ if __name__ == '__main__':
 
     key = ['y']
 
+
     # waypoints for the turtlebot, [x,y, theata]
-    # need to increase points B,C,E, and F in the y direction. Orignal value is 1.63, changing to 
+    # need to increase points B,C,E, and F in the y direction. Orignal value is 1.63, changing to
     point_A = [-18.39, 3.97, 225]
     point_B = [-20.38, 2.0, 180]
     point_C = [-33.56, 2.0, 180]
@@ -102,6 +103,7 @@ if __name__ == '__main__':
 
     try:
         rospy.init_node('nav_test', anonymous=False)
+        # rospy.param_set('/move_base/DWAPlannerROS/xy_goal_tolerance', 0.2)
         point_pub = rospy.Publisher("/point_ab", String, queue_size=10)
         command_sub = rospy.Publisher("/data_logging_commands", String, queue_size = 1)
         navigator = GoToPose()
@@ -159,16 +161,26 @@ if __name__ == '__main__':
                     while proceed not in key:
                         proceed = raw_input("You must press 'y'...")
 
+                elif locations_names[goal_index] == 'D':
+                    rospy.wait_for_service('/move_base/clear_costmaps')
+                    clear_costmap = rospy.ServiceProxy('/move_base/clear_costmaps', Empty)
+                    resp1 = clear_costmap()
+                    print("cleared Costmap")
+
+                elif locations_names[goal_index] == 'F':
+                    rospy.wait_for_service('/move_base/clear_costmaps')
+                    clear_costmap = rospy.ServiceProxy('/move_base/clear_costmaps', Empty)
+                    resp1 = clear_costmap()
+                    print("cleared Costmap")
+
                 else:
                     pass
-                    # point_pub.publish(locations_names[goal_index])
-                    # rospy.ServiceProxy('/move_base/clear_costmaps', std_srvs.srv.Empty())
-                    # rospy.wait_for_service('/move_base/clear_costmaps')
 
             else:
                 rospy.loginfo("The base failed to reach point " + locations_names[goal_index])
-                rospy.ServiceProxy('/move_base/clear_costmaps', std_srvs.srv.Empty())
                 rospy.wait_for_service('/move_base/clear_costmaps')
+                clear_costmap = rospy.ServiceProxy('/move_base/clear_costmaps', Empty)
+                resp1 = clear_costmap()
 
             goal_index += 1
 
