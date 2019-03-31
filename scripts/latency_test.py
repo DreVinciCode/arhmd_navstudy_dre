@@ -11,7 +11,7 @@ from geometry_msgs.msg import PoseWithCovarianceStamped, Twist
 import csv
 
 
-class arStudyData:
+class latencyData:
 
     def __init__(self):
 
@@ -21,9 +21,6 @@ class arStudyData:
         # self.currentpoint_sub = rospy.Subscriber("/scan", LaserScan, self.laserscan_callback)
 
         # rospy.spin()
-
-
-
 
     def laserscan_callback(self):
 
@@ -35,6 +32,7 @@ class arStudyData:
         rospy.loginfo("Got first message!")
         print(first_msg_id, first_msg_time)
 
+        # obtain first message from /scan topic
         rospy.loginfo("Waiting for return message...")
         self.second_ls_msg = rospy.wait_for_message("/scan_return",LaserScan)
         second_msg_id = self.second_ls_msg.header.seq
@@ -49,15 +47,8 @@ class arStudyData:
         else:
             print("Error in message id...")
 
-        # rospy.loginfo("Got first message!")
-
-
-
-
-
-
 
 if __name__ == '__main__':
-    nav = arStudyData()
+    nav = latencyData()
 
     nav.laserscan_callback()
