@@ -60,7 +60,7 @@ class arStudyData:
             self.bag.close()
             print("End of Recording..")
 
-            with open('/home/drevinci/catkin_ws/src/ari_study/rosbag/' + self.current_filename + ".csv", mode='w') as csv_file:
+            with open('/home/drevinci/catkin_ws/src/arhmd_navstudy_dre/rosbag/' + self.current_filename + ".csv", mode='w') as csv_file:
                 logger = csv.writer(csv_file, delimiter=',')
 
                 for i in range(len(self.y_plan_array)):
