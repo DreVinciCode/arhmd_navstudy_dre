@@ -16,8 +16,6 @@ class latencyData:
     def __init__(self):
 
         rospy.init_node('latency_test', anonymous = True)
-        self.first_ls_msg = 0
-        self.second_ls_msg = 0
         # self.currentpoint_sub = rospy.Subscriber("/scan", LaserScan, self.scan_callback)
 
         # rospy.spin()
@@ -52,7 +50,6 @@ class latencyData:
         time_stamp_2 = second_msg.header.stamp.secs + second_msg.header.stamp.nsecs / 1000000000.0
         second_msg_id = second_msg.header.seq
     	print(second_msg)
-
 
         if first_msg_id == second_msg_id:
             dt = time_stamp_2 - time_stamp_1
