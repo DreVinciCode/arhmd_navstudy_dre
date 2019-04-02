@@ -182,6 +182,9 @@ class latencyData:
 
         self.ph_msg_avg = (self.counter_ph-1)*(self.ph_msg_avg)/(self.counter_ph) + (1/self.counter_ph)*ph_msg_dt
 
+    def printout(self):
+        print("LaserScan: ", self.ls_msg_avg , "\tCostmap: " , self.cm_msg_avg , "\tPath :" , self.ph_msg_avg , "\tLocalization: ", self.lz_msg_avg)
+
 
 
 if __name__ == '__main__':

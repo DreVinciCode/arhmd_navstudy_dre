@@ -20,8 +20,6 @@ class latencyData:
 
         # rospy.spin()
 
-
-
     # def scan_callback(self, data):
     # 	print(data)
 
