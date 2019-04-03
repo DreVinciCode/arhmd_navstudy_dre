@@ -18,10 +18,10 @@ class latencyData:
         rospy.init_node('latency_test', anonymous = True)
 
         # variables
-        self.ls_msg_avg = 0
-        self.cm_msg_avg = 0
-        self.lz_msg_avg = 0
-        self.ph_msg_avg = 0
+        self.ls_msg_avg = 0.0
+        self.cm_msg_avg = 0.0
+        self.lz_msg_avg = 0.0
+        self.ph_msg_avg = 0.0
         self.counter_ls = 0
         self.counter_cm = 0
         self.counter_lz = 0
@@ -43,7 +43,7 @@ class latencyData:
         self.localalize_pub = rospy.Publisher("/ARFUROS/Localization", PoseArray, queue_size = 1)
         self.path_pub = rospy.Publisher("/ARFUROS/Path", Path, queue_size = 1)
 
-        # rospy.spin()
+        rospy.spin()
 
 
     def scan_callback(self, data):
@@ -78,7 +78,7 @@ class latencyData:
 
         self.ls_msg_avg = (self.counter_ls-1)*(self.ls_msg_avg)/(self.counter_ls) + (1/self.counter_ls)*ls_msg_dt
 
-
+        print(self.ls_msg_avg)
     # def costmap_callback(self, data):
     #
     #     msg = data
@@ -192,4 +192,4 @@ class latencyData:
 if __name__ == '__main__':
     nav = latencyData()
 
-    nav.laserscan_callback()
+    # nav.laserscan_callback()
