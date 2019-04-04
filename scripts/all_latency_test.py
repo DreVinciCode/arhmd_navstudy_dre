@@ -27,9 +27,15 @@ class latencyData:
         self.counter_cm = 0
         self.counter_lz = 0
         self.counter_ph = 0
+        self.ls_time_begin = 0
 
         # subscribers
-        self.laserscan_sub = rospy.Subscriber("/scan", LaserScan, self.scan_callback)
+        # self.laserscan_sub = rospy.Subscriber("/scan", LaserScan, self.scan_callback)
+        self.laserscan_return = rospy.Subscriber("/laser_from", LaserScan, self.scan_return_callback)
+        self.costmap_return = rospy.Subscriber("/costmap_from", OccupancyGrid, self.cost_return_callback)
+        self.localization_return = rospy.Subscriber("/localization_from", PoseArray, self.local_return_callback)
+        self.path_return = rospy.Subscriber("/path_from", Path, self.path_return_callback)
+
         # self.laserscan_sub = rospy.wait_for_message("/scan", LaserScan, self.scan_callback)
         # self.costmap_sub = rospy.Subscriber("/move_base/local_costmap/costmap", OccupancyGrid, self.costmap_callback)
         # self.localiztion_sub = rospy.Subscriber("/particlecloud", PoseArray, self.localalize_callback)
@@ -43,7 +49,7 @@ class latencyData:
         # self.laserscan_sub = rospy.Subscriber("/", LaserScan, self.scan_callback)
 
         # publishers
-        self.laser_pub = rospy.Publisher("/laser_to", LaserScan, queue_size = 1)
+        # self.laser_pub = rospy.Publisher("/laser_to", LaserScan, queue_size = 1)
         # self.laserscan_sub = rospy.Subscriber("/laser_from", LaserScan, self.scan_callback)
 
         # self.costmap_pub = rospy.Publisher("/ARFUROS/Costmap", OccupancyGrid, queue_size = 1)
@@ -53,33 +59,99 @@ class latencyData:
         rospy.spin()
 
 
-    def scan_callback(self, data):
+    # def scan_callback(self, data):
 
-        msg = data
-        time_stamp_1 = msg.header.stamp.secs + msg.header.stamp.nsecs / 1000000000.0
-        # fix the range values that are NaN and replace with -1.0
-        ranges = msg.ranges
-        ranges = [-1.0 if math.isnan(x) else x for x in ranges]
-        msg.ranges = ranges
+    #     msg = data
 
-        self.laser_pub.publish(msg)
-        now = rospy.get_rostime()
-        time_begin = now.secs + now.nsecs /1000000000.0
+    #     time_stamp_1 = msg.header.stamp.secs + msg.header.stamp.nsecs / 1000000000.0
+    #     # fix the range values that are NaN and replace with -1.0
+    #     ranges = msg.ranges
+    #     ranges = [-1.0 if math.isnan(x) or math.isinf(x) else x for x in ranges]
+    #     msg.ranges = ranges
+    #     # now = rospy.get_rostime()
+    #     # msg.header.stamp.secs = now.secs 
+    #     # msg.header.stamp.nsecs = now.nsecs
+    
+    #     self.laser_pub.publish(msg)
+    #     now = rospy.get_rostime()
+    #     self.ls_time_begin = now.secs + now.nsecs /1000000000.0
 
-        msg_return = rospy.wait_for_message("/laser_from",LaserScan)
+    def scan_return_callback(self, data):
+
+        msg_return = data
+
+        # msg_wait = rospy.wait_for_message("/laser_from",LaserScan)
         later = rospy.get_rostime()
         time_end = later.secs + later.nsecs /1000000000.0
         time_stamp_2 = msg_return.header.stamp.secs + msg_return.header.stamp.nsecs / 1000000000.0
-        # for i in range(len(ranges)):
+        # # for i in range(len(ranges)):
 
-        ls_msg_dt = time_end - time_begin
+        ls_msg_dt = time_end - time_stamp_2
 
+        self.counter_ls = self.counter_ls + 1
         self.ls_msg_avg = (self.counter_ls-1)*(self.ls_msg_avg)/(self.counter_ls) + (1/self.counter_ls)*ls_msg_dt
 
+        diff_secs = later.secs - msg_return.header.stamp.secs
+        diff_nsecs = later.nsecs - msg_return.header.stamp.nsecs
 
-        print(time_stamp_1, time_stamp_2)
-        print("Average latency: ", self.ls_msg_avg)
+        ls_msg_dt = (diff_nsecs / 1000000) + (diff_secs * 1000)
+        # print(diff_time, " ms")
+        self.ls_msg_avg = (self.counter_ls-1)*(self.ls_msg_avg)/(self.counter_ls) + (1/self.counter_ls)*ls_msg_dt
+        # print(self.ls_msg_avg, " ms")
+        self.printout()
 
+    def cost_return_callback(self, data):
+
+        msg_return = data
+
+        # msg_wait = rospy.wait_for_message("/laser_from",LaserScan)
+        later = rospy.get_rostime()
+     
+        diff_secs = later.secs - msg_return.header.stamp.secs
+        diff_nsecs = later.nsecs - msg_return.header.stamp.nsecs
+
+        cm_msg_dt = (diff_nsecs / 1000000) + (diff_secs * 1000)
+        # print(diff_time, " ms")
+        self.counter_cm = self.counter_cm + 1
+        self.cm_msg_avg = (self.counter_cm-1)*(self.cm_msg_avg)/(self.counter_cm) + (1/self.counter_cm)*cm_msg_dt
+        # print(self.cm_msg_avg, " ms")
+        self.printout()
+
+
+    def local_return_callback(self, data):
+
+        msg_return = data
+
+        # msg_wait = rospy.wait_for_message("/laser_from",LaserScan)
+        later = rospy.get_rostime()
+     
+        diff_secs = later.secs - msg_return.header.stamp.secs
+        diff_nsecs = later.nsecs - msg_return.header.stamp.nsecs
+
+        lz_msg_dt = (diff_nsecs / 1000000) + (diff_secs * 1000)
+        # print(diff_time, " ms")
+        self.counter_lz = self.counter_lz + 1
+        self.lz_msg_avg = (self.counter_lz-1)*(self.lz_msg_avg)/(self.counter_lz) + (1/self.counter_lz)*lz_msg_dt
+        # print(self.cm_msg_avg, " ms")
+        self.printout()
+
+
+    def path_return_callback(self, data):
+
+        msg_return = data
+
+        # msg_wait = rospy.wait_for_message("/laser_from",LaserScan)
+        later = rospy.get_rostime()
+     
+        diff_secs = later.secs - msg_return.header.stamp.secs
+        diff_nsecs = later.nsecs - msg_return.header.stamp.nsecs
+
+        ph_msg_dt = (diff_nsecs / 1000000) + (diff_secs * 1000)
+        # print(diff_time, " ms")
+        self.counter_ph = self.counter_ph + 1
+        self.ph_msg_avg = (self.counter_ph-1)*(self.ph_msg_avg)/(self.counter_ph) + (1/self.counter_ph)*ph_msg_dt
+        # print(self.cm_msg_avg, " ms")
+        self.printout()
         #
         # print(msg)
         #  = rospy.Time.now()
@@ -223,9 +295,9 @@ class latencyData:
     #
     #     self.ph_msg_avg = (self.counter_ph-1)*(self.ph_msg_avg)/(self.counter_ph) + (1/self.counter_ph)*ph_msg_dt
     #
-    # def printout(self):
-    #     print("LaserScan: ", self.ls_msg_avg , "\tCostmap: " , self.cm_msg_avg , "\tPath :" , self.ph_msg_avg , "\tLocalization: ", self.lz_msg_avg)
-    #
+    def printout(self):
+        print("LaserScan [ms]: ", round(self.ls_msg_avg) , "\tCostmap [ms]: " , round(self.cm_msg_avg) , "\tPath [ms] :" , round(self.ph_msg_avg) , "\tLocalization [ms]: ", round(self.lz_msg_avg))
+    
 
 
 if __name__ == '__main__':
