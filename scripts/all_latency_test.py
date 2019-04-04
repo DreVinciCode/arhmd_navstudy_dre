@@ -67,10 +67,18 @@ class latencyData:
         time_begin = now.secs + now.nsecs /1000000000.0
 
         msg_return = rospy.wait_for_message("/laser_from",LaserScan)
+        later = rospy.get_rostime()
+        time_end = later.secs + later.nsecs /1000000000.0
         time_stamp_2 = msg_return.header.stamp.secs + msg_return.header.stamp.nsecs / 1000000000.0
         # for i in range(len(ranges)):
 
+        ls_msg_dt = time_end - time_begin
+
+        self.ls_msg_avg = (self.counter_ls-1)*(self.ls_msg_avg)/(self.counter_ls) + (1/self.counter_ls)*ls_msg_dt
+
+
         print(time_stamp_1, time_stamp_2)
+        print("Average latency: ", self.ls_msg_avg)
 
         #
         # print(msg)
@@ -83,8 +91,8 @@ class latencyData:
         # first_msg_id = msg.header.seq
 
         # self.laser_pub.publish(msg)
-        time_stamp_1 = msg.header.stamp.secs + msg.header.stamp.nsecs / 1000000000.0
-
+        # time_stamp_1 = msg.header.stamp.secs + msg.header.stamp.nsecs / 1000000000.0
+        #
 
     	# print(msg)
 
