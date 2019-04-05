@@ -37,16 +37,6 @@ class latencyData:
         self.lz_array = []
         self.ph_array = []
 
-        style.use('fivethirtyeight')
-
-        fig=plt.figure()
-        ax1 = plt.subplot(411)
-        ax2 = plt.subplot(412)
-        ax3 = plt.subplot(413)
-        ax4 = plt.subplot(414)
-
-        plt.show()
-
         # subscribers
         self.laserscan_return = rospy.Subscriber("/laser_from", LaserScan, self.scan_return_callback)
         self.costmap_return = rospy.Subscriber("/costmap_from", OccupancyGrid, self.cost_return_callback)
