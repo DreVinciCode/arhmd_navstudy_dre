@@ -46,29 +46,29 @@ class latencyData:
         rospy.spin()
 
         #script to write data to csv file
-        with open('laserscan_latency' + str(filenumber)+ ".csv", mode='w') as csv_file:
-            logger = csv.writer(csv_file, delimiter=',')
+        with open('laserscan_latency_' + str(filenumber) + ".csv", mode='w') as csv_1:
+            logger = csv.writer(csv_1, delimiter=',')
 
             for i in range(len(self.ls_array)):
-                logger.writerow([self.ls_array[i])
+                logger.writerow([self.ls_array[i]])
 
-        with open('costmap_latency' + str(filenumber)+ ".csv", mode='w') as csv_file:
-            logger = csv.writer(csv_file, delimiter=',')
+        with open('costmap_latency' + str(filenumber)+ ".csv", mode='w') as csv_2:
+            logger = csv.writer(csv_2, delimiter=',')
 
             for i in range(len(self.cm_array)):
-                logger.writerow([self.cm_array[i])
+                logger.writerow([self.cm_array[i]])
 
-        with open('localization_latency' + str(filenumber)+ ".csv", mode='w') as csv_file:
-            logger = csv.writer(csv_file, delimiter=',')
+        with open('localization_latency' + str(filenumber)+ ".csv", mode='w') as csv_3:
+            logger = csv.writer(csv_3, delimiter=',')
 
             for i in range(len(self.lz_array)):
-                logger.writerow([self.lz_array[i])
+                logger.writerow([self.lz_array[i]])
 
-        with open('path_latency' + str(filenumber)+ ".csv", mode='w') as csv_file:
-            logger = csv.writer(csv_file, delimiter=',')
+        with open('path_latency' + str(filenumber)+ ".csv", mode='w') as csv_4:
+            logger = csv.writer(csv_4, delimiter=',')
 
             for i in range(len(self.ph_array)):
-                logger.writerow([self.ph_array[i])
+                logger.writerow([self.ph_array[i]])
 
 
     def scan_return_callback(self, data):
@@ -85,8 +85,8 @@ class latencyData:
         self.ls_array.append(ls_msg_dt)
 
         # perform moving average
-        self.counter_ls = self.counter_ls + 1
-        self.ls_msg_avg = (self.counter_ls-1)*(self.ls_msg_avg)/(self.counter_ls) + (1/self.counter_ls)*ls_msg_dt
+        self.counter_ls = self.counter_ls + 1.0
+        self.ls_msg_avg = (self.counter_ls-1.0)*(self.ls_msg_avg)/(self.counter_ls) + (1.0/self.counter_ls)*ls_msg_dt
         self.printout()
 
 
@@ -103,8 +103,8 @@ class latencyData:
         cm_msg_dt = (diff_nsecs / 1000000) + (diff_secs * 1000)
         self.cm_array.append(cm_msg_dt)
 
-        self.counter_cm = self.counter_cm + 1
-        self.cm_msg_avg = (self.counter_cm-1)*(self.cm_msg_avg)/(self.counter_cm) + (1/self.counter_cm)*cm_msg_dt
+        self.counter_cm = self.counter_cm + 1.0
+        self.cm_msg_avg = (self.counter_cm-1.0)*(self.cm_msg_avg)/(self.counter_cm) + (1.0/self.counter_cm)*cm_msg_dt
         self.printout()
 
 
@@ -120,8 +120,8 @@ class latencyData:
         lz_msg_dt = (diff_nsecs / 1000000) + (diff_secs * 1000)
         self.lz_array.append(lz_msg_dt)
 
-        self.counter_lz = self.counter_lz + 1
-        self.lz_msg_avg = (self.counter_lz-1)*(self.lz_msg_avg)/(self.counter_lz) + (1/self.counter_lz)*lz_msg_dt
+        self.counter_lz = self.counter_lz + 1.0
+        self.lz_msg_avg = (self.counter_lz-1.0)*(self.lz_msg_avg)/(self.counter_lz) + (1.0/self.counter_lz)*lz_msg_dt
         self.printout()
 
 
@@ -137,12 +137,12 @@ class latencyData:
         ph_msg_dt = (diff_nsecs / 1000000) + (diff_secs * 1000)
         self.ph_array.append(ph_msg_dt)
 
-        self.counter_ph = self.counter_ph + 1
-        self.ph_msg_avg = (self.counter_ph-1)*(self.ph_msg_avg)/(self.counter_ph) + (1/self.counter_ph)*ph_msg_dt
+        self.counter_ph = self.counter_ph + 1.0
+        self.ph_msg_avg = (self.counter_ph-1.0)*(self.ph_msg_avg)/(self.counter_ph) + (1.0/self.counter_ph)*ph_msg_dt
         self.printout()
 
     def printout(self):
-        print("LaserScan [ms]: ", round(self.ls_msg_avg) , "\tCostmap [ms]: " , round(self.cm_msg_avg) , "\tPath [ms] :" , round(self.ph_msg_avg) , "\tLocalization [ms]: ", round(self.lz_msg_avg))
+        print("LaserScan [ms]: ", round(self.ls_msg_avg, 3) , "\tCostmap [ms]: " , round(self.cm_msg_avg, 3) , "\tPath [ms] :" , round(self.ph_msg_avg, 3) , "\tLocalization [ms]: ", round(self.lz_msg_avg, 3))
 
 
 
