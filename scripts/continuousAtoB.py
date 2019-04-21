@@ -28,8 +28,7 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from std_msgs.msg import String, Int32
 import numpy as np
 import rosbag
-import std_srvs.srv
-
+from std_srvs.srv import *
 class GoToPose():
     def __init__(self):
 
@@ -102,6 +101,8 @@ class GoToPose():
 if __name__ == '__main__':
 
     zero  = [0, 0]
+    point_B = [-20.38, 1.5, 180]
+    point_C = [-33.56, 1.5, 180]
 
     try:
         rospy.init_node('nav_test', anonymous=False)
@@ -124,8 +125,9 @@ if __name__ == '__main__':
 
         location_coord = np.zeros([num_location,2])
 
-        location_coord[0] = A
-        location_coord[1] = B
+        # replace with  A and B
+        location_coord[0] = [-20.38, 1.5]  
+        location_coord[1] = [-28.56, 1.5]
 
         while not rospy.is_shutdown():
 
@@ -139,13 +141,15 @@ if __name__ == '__main__':
             if success:
                 rospy.loginfo("Hooray, reached point " + locations_names[goal_index])
                 point_pub.publish(locations_names[goal_index])
-                rospy.ServiceProxy('/move_base/clear_costmaps', std_srvs.srv.Empty())
                 rospy.wait_for_service('/move_base/clear_costmaps')
+                clear_costmap = rospy.ServiceProxy('/move_base/clear_costmaps', Empty)
+                resp1 = clear_costmap()
 
             else:
                 rospy.loginfo("The base failed to reach point " + locations_names[goal_index])
-                rospy.ServiceProxy('/move_base/clear_costmaps', std_srvs.srv.Empty())
                 rospy.wait_for_service('/move_base/clear_costmaps')
+                clear_costmap = rospy.ServiceProxy('/move_base/clear_costmaps', Empty)
+                resp1 = clear_costmap()
 
             goal_index += 1
 

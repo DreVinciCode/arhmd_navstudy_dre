@@ -29,18 +29,13 @@ class arStudyData:
 
     def position_callback(self, data):
 
-    	self.point = data.data
-    	print(self.point)
+    	self.point = data
 
     	if self.point == "A":
     		self.north = True
-    		print("Facing North")
 
-    	elif self.point == "B":
- 			self.north = False
-			print("Facing South")   		
-    	else:
-		 	pass
+		if self.point == "B":
+			self.north = False
 
     def signal(self, signal, bool):
 
@@ -50,7 +45,6 @@ class arStudyData:
 
     def global_plan_callback(self,data):
         # deviation from y-intercept
-        wait = 0
         threshold = 0.1
         b_array = []
      
@@ -77,34 +71,69 @@ class arStudyData:
      	print(b_diff)
 
      	if self.north == True:
+	        if abs(b_diff) > threshold:
 
- 			if abs(b_diff) > threshold:
+	        	if np.sign(b_diff) == -1:
 
-    			 if np.sign(b_diff) == -1:
-        			self.signal("R", True)
-        			rospy.sleep(wait)
-        			self.signal("", False) 
+	        		self.signal("R", True)
 
-        		 elif np.sign(b_diff) == 1:
-        			self.signal("L", True)
-        			rospy.sleep(wait)
-        			self.signal("", False) 
- 			else:
- 				self.signal("S",True)
+	        	elif np.sign(b_diff) == 1:
 
-        if self.north == False:
+	        		self.signal("L", True)
+        		else:
+        			pass
 
- 			if abs(b_diff) > threshold:
-    			 if np.sign(b_diff) == -1:
-        			self.signal("L", True)
-        			rospy.sleep(wait)
-        			self.signal("", False) 
-        		 elif np.sign(b_diff) == 1:
-        			self.signal("R", True)
-        			rospy.sleep(wait)
-        			self.signal("", False) 
- 			else:
- 				self.signal("S",True)
+	    if self.north == False:
+
+        	if abs(b_diff) > threshold:
+
+	        	if np.sign(b_diff) == -1:
+
+	        		self.signal("L", True)
+
+	        	elif np.sign(b_diff) == 1:
+
+	        		self.signal("R", True)
+	
+	        	else:
+	        		pass
+
+
+        		# rospy.sleep(5.)
+        		# self.signal("R", False)
+  #       if b_max > abs(b_min):
+
+  #       	if b_max > threshold:
+  #       		print(b_max, "R")
+
+  #       	else:
+  #       		print("S")
+
+	  
+		# if abs(b_min) > b_max:
+
+		# 	if abs(b_min) > threshold:
+		# 		print(b_min,"L")
+
+		# 	else:
+		# 		print("S")
+
+        # b_diff = b - b_prime
+
+        # if abs(b_diff) > threshold:
+        #     if np.sign(b_diff) == -1:
+
+
+        #         print("R")
+        #         self.turning_pub.publish("R")
+
+        #     elif np.sign(b_diff) == 1:
+        #         print("L")
+        #         self.turning_pub.publish("L")
+
+        # else:
+        #     print("S")
+        #     self.turning_pub.publish("S")
 
 
 if __name__ == '__main__':
