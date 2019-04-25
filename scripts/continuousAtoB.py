@@ -120,14 +120,14 @@ if __name__ == '__main__':
 
         start_index = 0
         goal_index = start_index
-        locations_names = ['A', "B"]
+        locations_names = ["A", "B"]
         num_location = 2
 
         location_coord = np.zeros([num_location,2])
 
         # replace with  A and B
-        location_coord[0] = [-20.38, 1.5]  
-        location_coord[1] = [-28.56, 1.5]
+        location_coord[0] = A 
+        location_coord[1] = B
 
         while not rospy.is_shutdown():
 

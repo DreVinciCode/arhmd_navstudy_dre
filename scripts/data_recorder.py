@@ -21,6 +21,8 @@ class arStudyData:
 
         self.y_plan_array = []
         self.x_plan_array = []
+        self.signal_array = []
+
 
         # subscription to current reached goal notified by labeled point.
         self.currentpoint_sub = rospy.Subscriber("/point_ab", String, self.callback_point)
@@ -32,13 +34,10 @@ class arStudyData:
         self.pose_sub = rospy.Subscriber("/amcl_pose",PoseWithCovarianceStamped, self.callback_pose)
 
         # # subscription to odometry topic
-        # self.odom_sub = rospy.Subscriber("/odom", Odometry, self.odom_callback)
+        self.odom_sub = rospy.Subscriber("/odom", Odometry, self.odom_callback)
 
-        # subscription to global path plan
-        # self.global_plan_sub = rospy.Subscriber("/move_base/DWAPlannerROS/global_plan", Path, self.global_plan_callback)
-
-        # subscriptoin to local path plan
-        self.local_plan_sub = rospy.Subscriber("/move_base/DWAPlannerROS/local_plan", Path, self.local_plan_callback)
+        # subscription to global planner
+        self.global_plan_sub = rospy.Subscriber("/move_base/DWAPlannerROS/global_plan", Path, self.global_plan_callback)
         #
         # # subscription to navfnROS path plan
         # self.navfnRos_sub = rospy.Subscriber("/move_base/NavfnROS/plan", Path, self.navfnRos_callback)
@@ -46,13 +45,24 @@ class arStudyData:
         # subscription to command velocity topic
         self.cmd_vel_sub = rospy.Subscriber("/cmd_vel_mux/input/navi", Twist, self.cmd_vel_callback)
 
+        self.turn_signal_sub = rospy.Subscriber("/turn_signal", String, self.turn_signal_callback)
+
+
         rospy.spin()
+
+    def turn_signal_callback(self, data):
+
+        if self.recording == True:
+            self.bag.write("/turn_signal", data)
+        else:
+            pass
+
 
     def callback_point(self,data):
 
         if data.data == "B":
             self.recording = True
-            self.bag = rosbag.Bag(self.current_filename, 'w')
+            self.bag = rosbag.Bag('/home/drevinci/catkin_ws/src/arhmd_navstudy_dre/rosbag/' + self.current_filename, 'w')
             print("Recording Now!")
 
         elif data.data == "C":
@@ -84,14 +94,14 @@ class arStudyData:
         else:
             pass
 
-    # def odom_callback(self,data):
-    #
-    #    if self.recording == True:
-    #        self.bag.write('/odom',data)
-    #    else:
-    #        pass
+    def odom_callback(self,data):
+    
+       if self.recording == True:
+           self.bag.write('/odom',data)
+       else:
+           pass
 
-    def local_plan_callback(self, data):
+    def global_plan_callback(self, data):
         x_array = []
         y_array = []
 
@@ -100,6 +110,7 @@ class arStudyData:
             for i in range(len(data.poses)):
                  y_array.append(data.poses[i].pose.position.y)
                  x_array.append(data.poses[i].pose.position.x)
+            
             xavg = np.mean(x_array)
             yavg = np.mean(y_array)
             self.x_plan_array.append(xavg)
@@ -108,10 +119,9 @@ class arStudyData:
         else:
             pass
 
-    def cmd_vel_callback(self,data):
+    def cmd_vel_callback(self, data):
 
         if self.recording == True:
-            #/mobile_base/commands/velocity
             self.bag.write('/cmd_vel_mux/input/navi', data)
         else:
             pass

@@ -32,11 +32,11 @@ class arStudyData:
     	self.point = data.data
     	print(self.point)
 
-    	if self.point == "A":
+    	if self.point == "B":
     		self.north = True
     		print("Facing North")
 
-    	elif self.point == "B":
+    	elif self.point == "C":
  			self.north = False
 			print("Facing South")   		
     	else:
@@ -76,35 +76,41 @@ class arStudyData:
           
      	print(b_diff)
 
-     	if self.north == True:
+     	if self.north == False:
 
  			if abs(b_diff) > threshold:
 
     			 if np.sign(b_diff) == -1:
         			self.signal("R", True)
+        			self.turning_pub.publish("R")
         			rospy.sleep(wait)
         			self.signal("", False) 
 
         		 elif np.sign(b_diff) == 1:
         			self.signal("L", True)
+        			self.turning_pub.publish("L")
         			rospy.sleep(wait)
         			self.signal("", False) 
  			else:
  				self.signal("S",True)
 
-        if self.north == False:
+        if self.north == True:
 
  			if abs(b_diff) > threshold:
     			 if np.sign(b_diff) == -1:
         			self.signal("L", True)
+        			self.turning_pub.publish("L")
         			rospy.sleep(wait)
         			self.signal("", False) 
+
         		 elif np.sign(b_diff) == 1:
         			self.signal("R", True)
+        			self.turning_pub.publish("R")
         			rospy.sleep(wait)
         			self.signal("", False) 
  			else:
  				self.signal("S",True)
+ 				self.turning_pub.publish("S")
 
 
 if __name__ == '__main__':
