@@ -51,7 +51,7 @@ class arStudyData:
     def global_plan_callback(self,data):
         # deviation from y-intercept
         wait = 0
-        threshold = 0.1
+        threshold = 2.0
         b_array = []
      
 
