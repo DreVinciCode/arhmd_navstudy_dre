@@ -1,9 +1,0 @@
-roslaunch arfuros gazebo.launch 
-roslaunch tbot2_launch amcl_navigation.launch 
-
-rostopic echo
-
-SEND = /ARFUROS/LaserScan
-RECEIVE = /ARFUROS/LatencyTest/LaserScan
-
-/Costmap, /Path, /Localization

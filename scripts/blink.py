@@ -17,6 +17,8 @@ class arStudyData:
         
         # subscriptoin to global path plan
         self.global_plan_sub = rospy.Subscriber("/move_base/DWAPlannerROS/global_plan", Path, self.global_plan_callback)
+        # self.global_plan_sub = rospy.Subscriber("/ARFUROS/Path", Path, self.global_plan_callback)
+
 
         self.position_callback = rospy.Subscriber("/point_ab", String, self.position_callback)
 
@@ -51,21 +53,28 @@ class arStudyData:
     def global_plan_callback(self,data):
         # deviation from y-intercept
         wait = 0
-        threshold = 2.0
+        threshold = 1.0
         b_array = []
+        total_b = 0.0 
      
 
         # use linear formula y = mx +b to determine a straight line from the robots
         # orientation. Using first and 4th point.
-        x1, x2 = [data.poses[0].pose.position.x, data.poses[2].pose.position.x]
-        y1, y2 = [data.poses[0].pose.position.y, data.poses[2].pose.position.y]
+
+        # print(len(data.poses))
+        # if (len(data.poses) < 4):
+        #     return
+
+        x1, x2 = [data.poses[0].pose.position.x, data.poses[1].pose.position.x]
+        y1, y2 = [data.poses[0].pose.position.y, data.poses[1].pose.position.y]
         slope = (y2 -y1)/(x2-x1)
         b = y1 - slope*(x1)
 
         for i in range(len(data.poses)):
-            y = data.poses[-1].pose.position.y
-            x = data.poses[-1].pose.position.x
+            y = data.poses[i].pose.position.y
+            x = data.poses[i].pose.position.x
      
+
 
             # determine whether if a nav point falls either on the left or right
             # side of the robots line.
@@ -73,8 +82,11 @@ class arStudyData:
 
             b_diff = b - b_prime
 
+            total_b = total_b + b_diff
+        avg_b = total_b/(len(data.poses))
+
           
-     	print(b_diff)
+     	print(avg_b)
 
      	if self.north == False:
 
