@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 from __future__ import print_function
+import rosbag
 import rospy
+import sys, time
 import numpy as np
 from std_msgs.msg import Float64, String, Int8
-from nav_msgs.msg import Path
+from nav_msgs.msg import Odometry, Path
+from geometry_msgs.msg import PoseWithCovarianceStamped, Twist
+import csv
 
 
 class arStudyData:
@@ -11,119 +15,91 @@ class arStudyData:
     def __init__(self):
 
         rospy.init_node('blinker', anonymous = True)
+        self.turning = False
+        self.LEFT = False
+        self.RIGHT = False
+        self.flag = True
 
-        self.point = ""
-        self.north = False
-        
+        self.y_plan = []
+        self.x_plan = []
+        self.path_array = []
+
         # subscriptoin to global path plan
         self.global_plan_sub = rospy.Subscriber("/move_base/DWAPlannerROS/global_plan", Path, self.global_plan_callback)
-        # self.global_plan_sub = rospy.Subscriber("/ARFUROS/Path", Path, self.global_plan_callback)
-
-
-        self.position_callback = rospy.Subscriber("/point_ab", String, self.position_callback)
-
-
-        # publisher to send either left, right or straight
         self.turning_pub = rospy.Publisher("/turn_signal", String, queue_size=10)
 
         rospy.spin()
 
-
-    def position_callback(self, data):
-
-    	self.point = data.data
-    	print(self.point)
-
-    	if self.point == "B":
-    		self.north = True
-    		print("Facing North")
-
-    	elif self.point == "C":
- 			self.north = False
-			print("Facing South")   		
-    	else:
-		 	pass
-
-    def signal(self, signal, bool):
-
-    	if bool:
-
-    		print(signal)   
-
     def global_plan_callback(self,data):
-        # deviation from y-intercept
-        wait = 0
-        threshold = 1.0
-        b_array = []
-        total_b = 0.0 
-     
 
-        # use linear formula y = mx +b to determine a straight line from the robots
-        # orientation. Using first and 4th point.
+        current_x_array = []
+        current_y_array = []
 
-        # print(len(data.poses))
-        # if (len(data.poses) < 4):
-        #     return
+        future_x_array = []
+        future_y_array = []
 
-        x1, x2 = [data.poses[0].pose.position.x, data.poses[1].pose.position.x]
-        y1, y2 = [data.poses[0].pose.position.y, data.poses[1].pose.position.y]
-        slope = (y2 -y1)/(x2-x1)
-        b = y1 - slope*(x1)
+    
+        threshold = 0.2
 
-        for i in range(len(data.poses)):
-            y = data.poses[i].pose.position.y
-            x = data.poses[i].pose.position.x
-     
+        if (len(self.path_array) >= 5):
+            self.path_array.pop(1)
+            self.path_array.append(data.poses)
 
 
-            # determine whether if a nav point falls either on the left or right
-            # side of the robots line.
-            b_prime = (y - slope*(x)) 
+            current_path = self.path_array[1]
+            future_path = self.path_array[4]
 
-            b_diff = b - b_prime
+            for i in range(len(current_path)):
+                current_y_array.append(current_path[i].pose.position.y)
+                current_x_array.append(current_path[i].pose.position.x)
 
-            total_b = total_b + b_diff
-        avg_b = total_b/(len(data.poses))
+            for i in range(len(future_path)):
+                future_y_array.append(future_path[i].pose.position.y)
+                future_x_array.append(future_path[i].pose.position.x)
 
-          
-     	print(avg_b)
+            current_xavg = np.mean(current_x_array)
+            current_yavg = np.mean(current_y_array)
+            future_xavg = np.mean(future_x_array)
+            future_yavg = np.mean(future_y_array)
 
-     	if self.north == False:
 
- 			if abs(b_diff) > threshold:
+            if (current_xavg > future_xavg):
+                if future_yavg > (current_yavg + threshold):
+                    self.turning_pub.publish("R")
+                    print("R")
 
-    			 if np.sign(b_diff) == -1:
-        			self.signal("R", True)
-        			self.turning_pub.publish("R")
-        			rospy.sleep(wait)
-        			self.signal("", False) 
+                elif future_yavg < (current_yavg - threshold):
+                    self.turning_pub.publish("L")
+                    print("L")
 
-        		 elif np.sign(b_diff) == 1:
-        			self.signal("L", True)
-        			self.turning_pub.publish("L")
-        			rospy.sleep(wait)
-        			self.signal("", False) 
- 			else:
- 				self.signal("S",True)
+                else:
+                    self.turning_pub.publish("S")
+                    print("S") 
 
-        if self.north == True:
+            elif (current_xavg < future_xavg):
 
- 			if abs(b_diff) > threshold:
-    			 if np.sign(b_diff) == -1:
-        			self.signal("L", True)
-        			self.turning_pub.publish("L")
-        			rospy.sleep(wait)
-        			self.signal("", False) 
+                if future_yavg < (current_yavg - threshold):
+                    self.turning_pub.publish("R")
+                    print("R")
 
-        		 elif np.sign(b_diff) == 1:
-        			self.signal("R", True)
-        			self.turning_pub.publish("R")
-        			rospy.sleep(wait)
-        			self.signal("", False) 
- 			else:
- 				self.signal("S",True)
- 				self.turning_pub.publish("S")
+                elif future_yavg > (current_yavg + threshold):
+                    self.turning_pub.publish("L")
+                    print("L")
+
+                else:
+                    self.turning_pub.publish("S")
+                    print("S") 
+
+            else:
+                self.turning_pub.publish("S")
+                print("S")  
+
+
+        else: 
+            self.path_array.append(data.poses)
 
 
 if __name__ == '__main__':
     nav = arStudyData()
+
+
